@@ -75,9 +75,9 @@
                 <!-- MODAL EDIT -->
                 <div class="modal fade" id="edit{{ $mobil->id }}" tabindex="-1">
                     <div class="modal-dialog">
-                        <form action="{{ route('mobil.update', $mobil->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
+                <form action="{{ route('mobil.update', $mobil->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -110,6 +110,17 @@
                                     <input type="number" name="harga_sewa" class="form-control mb-2"
                                         value="{{ $mobil->harga_sewa }}" required>
 
+                                    <div class="mb-2">
+                                        <label class="form-label small fw-bold">Foto Mobil</label>
+                                        @if ($mobil->foto)
+                                            <div class="mb-2">
+                                                <img src="{{ asset('storage/' . $mobil->foto) }}" width="100" class="img-thumbnail">
+                                            </div>
+                                        @endif
+                                        <input type="file" name="foto" class="form-control">
+                                        <small class="text-muted">Biarkan kosong jika tidak ingin mengubah foto</small>
+                                    </div>
+
                                     <select name="status" class="form-control">
                                         <option value="tersedia"
                                             {{ $mobil->status == 'tersedia' ? 'selected' : '' }}>
@@ -137,12 +148,15 @@
             </tbody>
         </table>
     </div>
+    <div class="pagination-container">
+        {{ $mobils->links() }}
+    </div>
 </div>
 
 <!-- MODAL TAMBAH -->
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog">
-        <form action="{{ route('mobil.store') }}" method="POST">
+        <form action="{{ route('mobil.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
                 <div class="modal-header">
@@ -163,6 +177,11 @@
                     <input type="number" name="tahun" class="form-control mb-2" placeholder="Tahun" required>
                     <input type="text" name="nomor_plat" class="form-control mb-2" placeholder="Plat" required>
                     <input type="number" name="harga_sewa" class="form-control mb-2" placeholder="Harga Sewa" required>
+
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold">Foto Mobil</label>
+                        <input type="file" name="foto" class="form-control" required>
+                    </div>
 
                     <select name="status" class="form-control">
                         <option value="tersedia">Tersedia</option>

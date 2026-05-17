@@ -113,6 +113,9 @@
         @endforeach
         </tbody>
     </table>
+    <div class="pagination-container">
+        {{ $users->links() }}
+    </div>
 </div>
 
 {{-- MODAL TAMBAH --}}
@@ -151,6 +154,7 @@
                     <select name="role_id" class="form-control">
                         <option value="1">Admin</option>
                         <option value="2">User</option>
+                        <option value="4">Petugas</option>
                     </select>
                 </div>
 

@@ -1,16 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
-<section id="catalog-header" style="text-align: center">
-    <div class="container-sm">
-        <h1 class="fw-bold mb-2" style="font-size: 48px; color:;">Katalog Mobil</h1>
-        <p style="font-size: 18px; opacity: 0.9;">Pilih mobil impian Anda dari koleksi lengkap kami</p>
-    </div>
-</section>
+
+
 
 <section id="catalog-content" style="padding: 60px 0;">
-    <div class="container-sm">
+    <div class="container-sm reveal">
+        <div class="section-header">
+            <span class="section-badge">Penawaran Terbaik</span>
+            <h2 class="section-title">Jelajahi Armada Kami</h2>
+            <p class="section-subtitle">Pilih dari berbagai pilihan mobil berkualitas dengan harga terjangkau</p>
+        </div>
         <div class="row">
 
             <!-- Daftar Mobil -->
@@ -24,68 +26,56 @@
                         @endif
                     </div>
                     <div>
-                        <select class="form-select form-select-sm" style="width: auto;">
+                        <select id="sort-select" class="form-select form-select-sm" style="width: auto;">
                             <option value="">Urutkan...</option>
-                            <option value="price-asc">Harga: Rendah ke Tinggi</option>
-                            <option value="price-desc">Harga: Tinggi ke Rendah</option>
-                            <option value="newest">Terbaru</option>
+                            <option value="price-asc" {{ request('sort') == 'price-asc' ? 'selected' : '' }}>Harga: Rendah ke Tinggi</option>
+                            <option value="price-desc" {{ request('sort') == 'price-desc' ? 'selected' : '' }}>Harga: Tinggi ke Rendah</option>
+                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Terbaru</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Grid Mobil -->
-                <div class="row">
-                    @forelse($cars as $car)
-                        <div class="col-md-6 col-lg-3 mb-3">
-                            <div class="card h-100 shadow-sm" style="border: none; transition: transform 0.3s, box-shadow 0.3s;">
-                                <div style="position: relative; height: 250px; overflow: hidden;">
-                                    <img src="{{ asset('storage/' . $car->foto) }}" 
-                                         class="card-img-top" 
-                                         alt="{{ $car->merk }} {{ $car->model }}"
-                                         style="height: 100%; object-fit: cover;">
-                                    <div style="position: absolute; top: 10px; right: 10px; background: #667eea; color: white; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">
-                                        {{ $car->kategori_mobil_id === 1 ? 'MPV' : ($car->kategori_mobil_id === 2 ? 'SUV' : 'Sedan') }}
-                                    </div>
+                <div class="row mt-5 g-4">
+                    @foreach ($cars as $car)
+                        <div class="col-xl-3 col-lg-4 col-md-6 reveal delay-{{ $loop->iteration }}">
+                            <div class="car-card">
+                                <div class="car-img-wrapper">
+                                    <img 
+                                        src="{{ asset('storage/' . $car->foto) }}" 
+                                        class="car-img" 
+                                        alt="{{ $car->merk }} {{ $car->model }}"
+                                    >
+                                    <div class="car-badge">Tersedia</div>
                                 </div>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title fw-bold">{{ $car->merk }} {{ $car->model }}</h5>
-                                    <p class="text-muted mb-3" style="font-size: 14px;">
-                                        <i class="bi bi-calendar"></i> {{ $car->tahun ?? 'N/A' }}
-                                    </p>
+
+                                <div class="card-body">
+                                    <h5 class="car-name">
+                                        {{ $car->merk }} {{ $car->model }}
+                                    </h5>
                                     
-                                    <div class="mb-3" style="font-size: 13px;">
-                                        <span class="badge bg-light text-dark">
-                                            <i class="bi bi-people"></i> {{ $car->jumlah_kursi ?? 5 }} Kursi
-                                        </span>
-                                        <span class="badge bg-light text-dark">
-                                            <i class="bi bi-fuel-pump"></i> {{ $car->jenis_bahan_bakar ?? 'Bensin' }}
-                                        </span>
+                                    <div class="price-wrapper">
+                                        <span class="price-label">Mulai dari</span>
+                                        <div class="price">
+                                            Rp {{ number_format($car->harga_sewa,0,',','.') }}
+                                            <span class="price-unit">/ hari</span>
+                                        </div>
                                     </div>
 
-                                    <h4 class="text-primary fw-bold mb-3">
-                                        Rp {{ number_format($car->harga_sewa, 0, ',', '.') }}<span style="font-size: 14px;">/hari</span>
-                                    </h4>
-
-                                    <div class="mt-auto">
-                                        <a href="{{ route('catalog.show', $car->id) }}" class="btn btn-primary btn-sm w-100 mb-2">
-                                            <i class="bi bi-eye"></i> Lihat Detail
+                                    <div class="btn-group-car">
+                                        <a href="{{ route('rental.create', $car->id) }}" class="btn-rent-primary">
+                                            Sewa 
                                         </a>
-                                        <a href="{{ route('rental.create', $car->id) }}" class="btn btn-outline-primary btn-sm w-100">
-                                            <i class="bi bi-cart"></i> Pesan Sekarang
+                                        <a href="{{ route('catalog.show', $car->id) }}" class="btn-rent-outline">
+                                            Detail
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    @empty
-                        <div class="col-12">
-                            <div class="alert alert-info text-center" role="alert">
-                                <h5 class="mb-0">Tidak ada mobil yang sesuai dengan filter Anda</h5>
-                                <p class="mb-0 mt-2">Coba ubah filter atau kembali ke halaman utama</p>
-                            </div>
-                        </div>
-                    @endempty
+                    @endforeach
                 </div>
+
 
                 <!-- Pagination -->
                 @if($cars->hasPages())
@@ -137,7 +127,7 @@
 
 <style>
     #catalog-content{
-        background: linear-gradient(to bottom,  #ffffff 0%, #ebf5ff 100%,#ebf5ff 100%);
+        background: linear-gradient(to bottom,  #ffffff 0%, #ebf5ff 100%,#ffffff 100%);
     }
     .card:hover {
         transform: translateY(-5px);
@@ -177,6 +167,17 @@
         background-color: #f0f0f0;
         color: #764ba2;
     }
+    .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 0.8s ease-out;
+    }
+
+    /* SAAT MUNCUL */
+    .reveal.active {
+        opacity: 1;
+        transform: translateY(0);
+    }
 </style>
 
 <script>
@@ -196,6 +197,42 @@
             maxVal.textContent = new Intl.NumberFormat('id-ID').format(this.value);
         });
     }
+
+    // Logic Sorting JavaScript
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const sortValue = this.value;
+            const url = new URL(window.location.href);
+            
+            if (sortValue) {
+                url.searchParams.set('sort', sortValue);
+            } else {
+                url.searchParams.delete('sort');
+            }
+            
+            // Tetap pertahankan parameter pencarian lain jika ada
+            window.location.href = url.toString();
+        });
+    }
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const reveals = document.querySelectorAll(".reveal");
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("active");
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.15
+    });
+
+    reveals.forEach(el => observer.observe(el));
+});
 </script>
 
 @endsection

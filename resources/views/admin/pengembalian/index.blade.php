@@ -116,6 +116,9 @@
 
         </table>
     </div>
+    <div class="pagination-container">
+        {{ $pengembalian->links() }}
+    </div>
 </div>
 
 <div class="modal fade" id="modalTambah" tabindex="-1">

@@ -110,7 +110,7 @@ class MidtransController extends Controller
                 $paymentData['status'] = 'valid';
                 
                 // Update status pemesanan
-                $pemesanan->update(['status' => 'disetujui']);
+                $pemesanan->update(['status' => 'pending']);
                 
                 Log::info('✅ Payment SUCCESSFUL for order: ' . $orderId);
             } elseif ($transactionStatus == 'pending') {

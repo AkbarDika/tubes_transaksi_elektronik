@@ -23,6 +23,8 @@ class DatabaseSeeder extends Seeder
             PemesananSeeder::class,
             DetailPemesananSeeder::class,
             PembayaranSeeder::class,
+            PengembalianSeeder::class,
+            DendaSeeder::class,
         ]);
     }
 

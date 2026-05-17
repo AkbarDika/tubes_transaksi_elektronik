@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     <style>
         body {
-            /* min-height: 200vh; hanya untuk demo scroll */
+            min-height: 200vh; /* hanya untuk demo scroll */
             /* background: linear-gradient(180deg, #e0f2fe, #f8fafc); */
         }
 
@@ -185,6 +185,21 @@
             border-radius: 12px;
             border: 1px solid #e5e7eb;
         }
+        .btn-outline-primary {
+            border-color: rgba(0, 0, 0, 0.6);
+            color: black;
+        }
+
+        .btn-outline-primary:hover {
+            background: rgba(107, 60, 60, 0.15);
+            border-color: black;
+            color: black;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f8cff, #6f6cff);
+            border: none;
+        }
 
 
 
@@ -211,83 +226,49 @@
             <ul class="navbar-nav ms-3 me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                       href="{{ route('dashboard') }}">
+                       href="#hero">
                         Beranda
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('catalog.*') ? 'active' : '' }}"
-                       href="{{ route('catalog.index') }}">
+                       href="{{ route('login') }}">
                         Katalog
                     </a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('dashboard') }}#section-3">
+                    <a class="nav-link" href="#section-3">
                         Tentang Kami
                     </a>
                 </li>
             </ul>
 
             <!-- MENU KANAN -->
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center gap-2">
 
-                <!-- Riwayat Pesanan -->
-                <a class="nav-link {{ request()->routeIs('user.riwayat_pesanan') ? 'active' : '' }}"
-                   href="{{ route('user.riwayat_pesanan') }}" style="color: gray !important;">
-                    Daftar Transaksi
-                </a>
-
-                <div class="vr mx-3"></div>
-                
-                <!-- USER DROPDOWN -->
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
-                    id="userDropdown"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                        <i class="fas fa-user me-2"></i>
-                        <span class="fw-semibold me-2">
-                            {{ auth()->user()->name }}
-                        </span>
+                @guest
+                    <!-- LOGIN -->
+                    <a href="{{ route('login') }}" class="btn btn-outline-primary btn-sm px-3">
+                        Login
                     </a>
 
-                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                    <!-- REGISTER -->
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-sm px-3">
+                        Sign Up
+                    </a>
+                @endguest
 
-                        {{-- DASHBOARD ADMIN --}}
-                        @if(auth()->user()->role_id == 1)
-                            <li>
-                                <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                                    Dashboard Admin
-                                </a>
-                            </li>
-                        @endif
-
-                        {{-- DASHBOARD PETUGAS --}}
-                        @if(auth()->user()->role_id == 4)
-                            <li>
-                                <a class="dropdown-item" href="{{ route('petugas.dashboard') }}">
-                                    Dashboard Petugas
-                                </a>
-                            </li>
-                        @endif
-
-                        <li><hr class="dropdown-divider"></li>
-
-                        {{-- LOGOUT --}}
-                        <li>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="dropdown-item text-danger">
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                @auth
+                    <!-- JIKA SUDAH LOGIN (opsional) -->
+                    <span class="fw-semibold">
+                        {{ auth()->user()->name }}
+                    </span>
+                @endauth
 
             </div>
+
 
         </div>
     </div>

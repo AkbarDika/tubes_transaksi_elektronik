@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.welcome')
 
 @section('content')
 
@@ -23,7 +23,7 @@
                 </p>
 
                 <div class="hero-buttons">
-                    <a href="{{ route('catalog.index') }}" class="btn-hero btn-primary-hero">
+                    <a href="{{ route('login') }}" class="btn-hero btn-primary-hero">
                         Pilih Mobil Sekarang
                     </a>
                     <a href="#section-3" class="btn-hero btn-outline-hero">
@@ -45,7 +45,7 @@
         </div>
 
         <div class="row mt-5 g-4">
-            @foreach ($cars as $car)
+            @forelse($cars as $car)
                 <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="car-card">
                         <div class="car-img-wrapper">
@@ -59,7 +59,7 @@
                             <div class="price-wrapper">
                                 <span class="price-label">Mulai dari</span>
                                 <div class="price">
-                                    Rp {{ number_format($car->harga_sewa,0,',','.') }}
+                                    {{ number_format($car->harga_sewa, 0, ',', '.') }}
                                     <span class="price-unit">/ hari</span>
                                 </div>
                             </div>
@@ -68,18 +68,22 @@
                                 <a href="{{ route('rental.create', $car->id) }}" class="btn-rent-primary">
                                     Sewa
                                 </a>
-                                <a href="{{ route('catalog.show', $car->id) }}" class="btn-rent-outline">
+                                <a href="{{ route('login') }}" class="btn-rent-outline">
                                     Detail
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-12 text-center">
+                    <p>Belum ada armada yang tersedia saat ini.</p>
+                </div>
+            @endforelse
         </div>
 
         <div class="text-center mt-5">
-            <a href="{{ route('catalog.index') }}" class="btn-view-all">
+            <a href="{{ route('login') }}" class="btn-view-all">
                 Lihat Semua Mobil →
             </a>
         </div>

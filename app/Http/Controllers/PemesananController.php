@@ -19,7 +19,7 @@ class PemesananController extends Controller
         $pemesanan = Pemesanan::with([
             'user',
             'details.mobil'
-        ])->get();
+        ])->paginate(10);
 
         $users = User::all();
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin - Rental Mobil</title>
+    <title>Petugas - Rental Mobil</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,15 +14,15 @@
         }
 
         /* Sidebar Styling */
-        .admin-sidebar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .petugas-sidebar {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
             min-height: 100vh;
             padding: 20px 0;
             position: sticky;
             top: 0;
         }
 
-        .admin-sidebar .sidebar-brand {
+        .petugas-sidebar .sidebar-brand {
             padding: 20px;
             font-size: 24px;
             font-weight: bold;
@@ -34,7 +34,7 @@
             margin-bottom: 20px;
         }
 
-        .admin-sidebar .nav-link {
+        .petugas-sidebar .nav-link {
             color: rgba(255, 255, 255, 0.8);
             padding: 12px 20px;
             margin: 5px 10px;
@@ -45,19 +45,19 @@
             gap: 10px;
         }
 
-        .admin-sidebar .nav-link:hover,
-        .admin-sidebar .nav-link.active {
+        .petugas-sidebar .nav-link:hover,
+        .petugas-sidebar .nav-link.active {
             background-color: rgba(255, 255, 255, 0.2);
             color: white;
         }
 
-        .admin-sidebar .nav-link i {
+        .petugas-sidebar .nav-link i {
             width: 20px;
             text-align: center;
         }
 
         /* Top Bar */
-        .admin-topbar {
+        .petugas-topbar {
             background: white;
             padding: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -65,34 +65,34 @@
             z-index: 100;
         }
 
-        .admin-topbar .topbar-user {
+        .petugas-topbar .topbar-user {
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        .admin-topbar .user-info {
+        .petugas-topbar .user-info {
             text-align: right;
         }
 
-        .admin-topbar .user-info h6 {
+        .petugas-topbar .user-info h6 {
             margin: 0;
             font-weight: 600;
             color: #333;
         }
 
-        .admin-topbar .user-info p {
+        .petugas-topbar .user-info p {
             margin: 0;
             font-size: 12px;
             color: #999;
         }
 
         /* Main Content */
-        .admin-content {
+        .petugas-content {
             padding: 30px;
         }
 
-        .admin-card {
+        .petugas-card {
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -100,7 +100,7 @@
             margin-bottom: 20px;
         }
 
-        .admin-stat-box {
+        .petugas-stat-box {
             background: white;
             border-radius: 8px;
             padding: 20px;
@@ -108,29 +108,29 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .admin-stat-box.stat-primary {
-            border-left-color: #667eea;
-        }
-
-        .admin-stat-box.stat-success {
+        .petugas-stat-box.stat-primary {
             border-left-color: #48bb78;
         }
 
-        .admin-stat-box.stat-warning {
+        .petugas-stat-box.stat-success {
+            border-left-color: #38a169;
+        }
+
+        .petugas-stat-box.stat-warning {
             border-left-color: #ed8936;
         }
 
-        .admin-stat-box.stat-danger {
+        .petugas-stat-box.stat-danger {
             border-left-color: #f56565;
         }
 
-        .admin-stat-box h3 {
-            color: #667eea;
+        .petugas-stat-box h3 {
+            color: #48bb78;
             font-weight: bold;
             margin: 10px 0;
         }
 
-        .admin-stat-box p {
+        .petugas-stat-box p {
             color: #999;
             font-size: 14px;
             margin: 0;
@@ -146,55 +146,18 @@
         }
 
         .page-title i {
-            color: #667eea;
+            color: #48bb78;
             font-size: 28px;
-        }
-
-        /* Collapse Menu Styling */
-        .admin-sidebar .collapse {
-            display: none;
-        }
-
-        .admin-sidebar .collapse.show {
-            display: block;
-        }
-
-        .admin-sidebar #mobilMenu .nav-link {
-            padding: 8px 20px;
-            font-size: 14px;
-        }
-
-        /* Pagination Styling */
-        .pagination-container {
-            border-top: 1px solid #edf2f7;
-            padding-top: 20px;
-            margin-top: 20px;
-        }
-
-        /* Target the flex container inside Laravel's pagination */
-        .pagination-container nav div.d-flex,
-        .pagination-container nav div.flex.justify-between {
-            display: flex !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        /* Ensure the 'Showing' text and links are spaced apart even when centered */
-        .pagination {
-            margin-bottom: 0;
-            gap: 5px;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .admin-sidebar {
+            .petugas-sidebar {
                 position: relative;
                 min-height: auto;
             }
 
-            .admin-content {
+            .petugas-content {
                 padding: 20px;
             }
         }
@@ -207,47 +170,28 @@
     <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-2">
-            <div class="admin-sidebar">
+            <div class="petugas-sidebar">
                 <div class="sidebar-brand">
-                    <i class="bi bi-shield-lock"></i>
-                    ADMIN
+                    <i class="bi bi-person-badge"></i>
+                    PETUGAS
                 </div>
 
                 <nav class="nav flex-column">
-                    <a class="nav-link {{ request()->is('admin') ? 'active' : '' }}" href="{{ url('/admin') }}">
+                    <a class="nav-link {{ request()->is('petugas') ? 'active' : '' }}" href="{{ url('/petugas') }}">
                         <i class="bi bi-house-door"></i>
                         Dashboard
                     </a>
                     
-                    <a class="nav-link" href="{{ url('/mobil') }}">
-                        <i class="bi bi-car-front"></i>
-                        Daftar Mobil
-                    </a>
-                    <a class="nav-link" href="{{ url('/kategori') }}">
-                        <i class="bi bi-car-front"></i>
-                        Kategori Mobil  
-                    </a>
-                    
-                    <a class="nav-link" href="{{ url('/pemesanan') }}">
-                        <i class="bi bi-person-check"></i>
+                    <a class="nav-link {{ request()->is('petugas/pemesanan') ? 'active' : '' }}" href="{{ url('/petugas/pemesanan') }}">
+                        <i class="bi bi-calendar-check"></i>
                         Pemesanan
                     </a>
-                    <a class="nav-link" href="{{ url('/pembayaran') }}">
-                        <i class="bi bi-credit-card"></i>
-                        Pembayaran
-                    </a>
-                    <a class="nav-link" href="{{ url('/pengembalian') }}">
-                        <i class="bi bi-credit-card"></i>
+                    
+                    <a class="nav-link {{ request()->is('petugas/pengembalian') ? 'active' : '' }}" href="{{ url('/petugas/pengembalian') }}">
+                        <i class="bi bi-arrow-return-left"></i>
                         Pengembalian
                     </a>
-                    <a class="nav-link" href="{{ url('/user') }}">
-                        <i class="bi bi-people"></i>
-                        Pengguna
-                    </a>
-                    <a class="nav-link {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}" href="{{ route('admin.laporan.index') }}">
-                        <i class="bi bi-file-earmark-pdf"></i>
-                        Laporan
-                    </a>
+                    
                     <a class="nav-link" href="{{ url('/dashboard') }}">
                         <i class="bi bi-home"></i>
                         Halaman Utama
@@ -271,19 +215,19 @@
         <!-- Main Content -->
         <div class="col-lg-10">
             <!-- Top Bar -->
-            <div class="admin-topbar">
+            <div class="petugas-topbar">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h5>Selamat datang di Admin Panel</h5>
+                        <h5>Selamat datang di Panel Petugas</h5>
                     </div>
                     <div class="col-auto">
                         <div class="topbar-user">
                             <div>
-                                <i class="bi bi-bell-fill" style="font-size: 18px; color: #667eea;"></i>
+                                <i class="bi bi-bell-fill" style="font-size: 18px; color: #48bb78;"></i>
                             </div>
                             <div class="user-info">
                                 <h6>{{ auth()->user()->name }}</h6>
-                                <p>Admin</p>
+                                <p>Petugas</p>
                             </div>
                         </div>
                     </div>
@@ -291,14 +235,28 @@
             </div>
 
             <!-- Content Area -->
-            <div class="admin-content">
+            <div class="petugas-content">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
                 @yield('content')
             </div>
         </div>
     </div>
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    @stack('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

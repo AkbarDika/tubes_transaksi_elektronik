@@ -56,6 +56,10 @@ class AuthController extends Controller
                 return redirect('/admin');
             }
 
+            if (Auth::user()->role_id == 4) {
+                return redirect('/petugas');
+            }
+
             return redirect()->route('dashboard');
         }
 

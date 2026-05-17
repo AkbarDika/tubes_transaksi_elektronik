@@ -10,7 +10,7 @@ class MobilController extends Controller
 {
     public function index()
     {
-        $mobils = Mobil::with('kategori')->get();
+        $mobils = Mobil::with('kategori')->paginate(10);
         $kategori = KategoriMobil::all();
 
         return view('admin.cars.index', compact('mobils', 'kategori'));
@@ -26,7 +26,13 @@ class MobilController extends Controller
             'nomor_plat'  => 'required|unique:mobil,nomor_plat',
             'harga_sewa'  => 'required|numeric',
             'status'      => 'required',
+            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto')) {
+            $fotoPath = $request->file('foto')->store('cars', 'public');
+            $validated['foto'] = $fotoPath;
+        }
 
         Mobil::create($validated);
 
@@ -43,7 +49,17 @@ class MobilController extends Controller
             'nomor_plat'  => 'required|unique:mobil,nomor_plat,' . $mobil->id,
             'harga_sewa'  => 'required|numeric',
             'status'      => 'required',
+            'foto'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('foto')) {
+            // Hapus foto lama jika ada
+            if ($mobil->foto && \Storage::disk('public')->exists($mobil->foto)) {
+                \Storage::disk('public')->delete($mobil->foto);
+            }
+            $fotoPath = $request->file('foto')->store('cars', 'public');
+            $validated['foto'] = $fotoPath;
+        }
 
         $mobil->update($validated);
 
@@ -52,6 +68,11 @@ class MobilController extends Controller
 
     public function destroy(Mobil $mobil)
     {
+        // Hapus foto jika ada
+        if ($mobil->foto && \Storage::disk('public')->exists($mobil->foto)) {
+            \Storage::disk('public')->delete($mobil->foto);
+        }
+
         $mobil->delete();
         return redirect()->back()->with('success', 'Mobil berhasil dihapus');
     }

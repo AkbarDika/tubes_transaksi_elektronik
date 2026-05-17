@@ -11,7 +11,7 @@ class PengembalianController extends Controller
 {
     public function index()
     {
-        $pengembalian = Pengembalian::with('pemesanan')->get();
+        $pengembalian = Pengembalian::with('pemesanan')->paginate(10);
         $pemesanan = Pemesanan::all();
 
         return view('admin.pengembalian.index', compact('pengembalian', 'pemesanan'));
@@ -53,4 +53,43 @@ class PengembalianController extends Controller
 
         return redirect()->back()->with('success', 'Data pengembalian berhasil dihapus');
     }
+
+
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'pemesanan_id'   => 'required|exists:pemesanan,id',
+            'tanggal_kembali'=> 'required|date',
+            'kondisi_mobil'  => 'required|in:baik,lecet,rusak',
+            'catatan'        => 'nullable|string',
+        ]);
+
+        // ambil pemesanan milik user
+        $pemesanan = Pemesanan::where('id', $request->pemesanan_id)
+            ->where('user_id', auth()->id())
+            ->with(['pembayaran', 'pengembalian'])
+            ->firstOrFail();
+
+        // 1️⃣ harus sudah dibayar
+        if (!$pemesanan->pembayaran || $pemesanan->pembayaran->status !== 'valid') {
+            return back()->with('error', 'Pesanan belum dibayar.');
+        }
+
+        // 2️⃣ tidak boleh double pengembalian
+        if ($pemesanan->pengembalian) {
+            return back()->with('error', 'Pengembalian sudah diajukan.');
+        }
+
+        // INSERT pengembalian
+        Pengembalian::create([
+            'pemesanan_id'        => $pemesanan->id,
+            'tanggal_kembali'     => $request->tanggal_kembali,
+            'kondisi_mobil'       => $request->kondisi_mobil,
+            'catatan'             => $request->catatan,
+            'status_pengembalian' => 'pending',
+        ]);
+
+        return back()->with('success', 'Pengembalian berhasil diajukan. Menunggu konfirmasi petugas.');
+    }
+
 }

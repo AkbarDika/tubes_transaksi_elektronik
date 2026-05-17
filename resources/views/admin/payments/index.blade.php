@@ -146,8 +146,12 @@
                 </tr>
                 @endforelse
                 </tbody>
+            </table>
+        </div>
+        <div class="pagination-container">
+            {{ $pembayaran->links() }}
+        </div>
     </div>
-</div>
 
 @if ($errors->any())
 <div class="alert alert-danger">

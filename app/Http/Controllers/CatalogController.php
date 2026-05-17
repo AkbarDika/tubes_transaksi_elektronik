@@ -7,12 +7,27 @@ use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
-    /**
-     * Tampilkan halaman catalog semua mobil
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $cars = Car::paginate(12);
+        $query = Car::where('status', 'tersedia');
+
+        if ($request->has('sort')) {
+            switch ($request->sort) {
+                case 'price-asc':
+                    $query->orderBy('harga_sewa', 'asc');
+                    break;
+                case 'price-desc':
+                    $query->orderBy('harga_sewa', 'desc');
+                    break;
+                case 'newest':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+            }
+        } else {
+            $query->latest();
+        }
+
+        $cars = $query->paginate(12);
         
         return view('catalog.index', compact('cars'));
     }

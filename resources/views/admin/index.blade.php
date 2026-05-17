@@ -14,7 +14,7 @@
             <div style="text-align: center;">
                 <i class="bi bi-car-front" style="font-size: 32px; color: #667eea;"></i>
             </div>
-            <h3>150</h3>
+            <h3>{{ $totalMobil }}</h3>
             <p>Total Mobil</p>
         </div>
     </div>
@@ -24,7 +24,7 @@
             <div style="text-align: center;">
                 <i class="bi bi-check-circle" style="font-size: 32px; color: #48bb78;"></i>
             </div>
-            <h3>45</h3>
+            <h3>{{ $pemesananAktif }}</h3>
             <p>Pemesanan Aktif</p>
         </div>
     </div>
@@ -34,7 +34,7 @@
             <div style="text-align: center;">
                 <i class="bi bi-credit-card" style="font-size: 32px; color: #ed8936;"></i>
             </div>
-            <h3>Rp 25.5M</h3>
+            <h3>Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
             <p>Total Pendapatan</p>
         </div>
     </div>
@@ -44,7 +44,7 @@
             <div style="text-align: center;">
                 <i class="bi bi-people" style="font-size: 32px; color: #f56565;"></i>
             </div>
-            <h3>320</h3>
+            <h3>{{ $totalPengguna }}</h3>
             <p>Total Pengguna</p>
         </div>
     </div>
@@ -59,7 +59,7 @@
                 <h5 style="margin: 0; font-weight: bold;">
                     <i class="bi bi-calendar-check"></i> Pemesanan Terbaru
                 </h5>
-                <a href="#" class="btn btn-sm btn-primary">Lihat Semua</a>
+                <a href="{{ route('pemesanan.index') }}" class="btn btn-sm btn-primary">Lihat Semua</a>
             </div>
 
             <div class="table-responsive">
@@ -74,42 +74,27 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @forelse($pemesananTerbaru as $pesanan)
                         <tr>
-                            <td>#PES001</td>
-                            <td>Budi Santoso</td>
-                            <td>Honda Jazz 2023</td>
-                            <td>06 Jan 2026</td>
+                            <td>#PES{{ str_pad($pesanan->id, 3, '0', STR_PAD_LEFT) }}</td>
+                            <td>{{ $pesanan->user->name }}</td>
                             <td>
-                                <span class="badge bg-success">Aktif</span>
+                                @foreach($pesanan->details as $detail)
+                                    {{ $detail->mobil->merk }} {{ $detail->mobil->model }}{{ !$loop->last ? ', ' : '' }}
+                                @endforeach
+                            </td>
+                            <td>{{ $pesanan->created_at->format('d M Y') }}</td>
+                            <td>
+                                <span class="badge bg-{{ $pesanan->status_badge }}">
+                                    {{ $pesanan->status_tampilan }}
+                                </span>
                             </td>
                         </tr>
+                        @empty
                         <tr>
-                            <td>#PES002</td>
-                            <td>Siti Nurhaliza</td>
-                            <td>Toyota Avanza</td>
-                            <td>05 Jan 2026</td>
-                            <td>
-                                <span class="badge bg-warning">Pending</span>
-                            </td>
+                            <td colspan="5" class="text-center">Belum ada pemesanan terbaru</td>
                         </tr>
-                        <tr>
-                            <td>#PES003</td>
-                            <td>Ahmad Wijaya</td>
-                            <td>Daihatsu Xenia</td>
-                            <td>04 Jan 2026</td>
-                            <td>
-                                <span class="badge bg-info">Selesai</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#PES004</td>
-                            <td>Rizki Pratama</td>
-                            <td>Nissan Livina</td>
-                            <td>03 Jan 2026</td>
-                            <td>
-                                <span class="badge bg-info">Selesai</span>
-                            </td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -122,13 +107,13 @@
             <h5 style="margin-bottom: 20px; font-weight: bold;">
                 <i class="bi bi-lightning"></i> Aksi Cepat
             </h5>
-            <a href="#" class="btn btn-outline-primary w-100 mb-2">
+            <a href="{{ route('mobil.index') }}" class="btn btn-outline-primary w-100 mb-2">
                 <i class="bi bi-plus-circle"></i> Tambah Mobil Baru
             </a>
-            <a href="#" class="btn btn-outline-primary w-100 mb-2">
+            <a href="{{ route('pemesanan.index') }}" class="btn btn-outline-primary w-100 mb-2">
                 <i class="bi bi-pencil-square"></i> Kelola Pemesanan
             </a>
-            <a href="#" class="btn btn-outline-primary w-100 mb-2">
+            <a href="{{ route('admin.laporan.index') }}" class="btn btn-outline-primary w-100 mb-2">
                 <i class="bi bi-file-earmark-pdf"></i> Buat Laporan
             </a>
             <a href="#" class="btn btn-outline-primary w-100">
@@ -156,18 +141,123 @@
     </div>
 </div>
 
-<!-- Chart Section (Optional) -->
+<!-- Chart Section -->
 <div class="row mt-4">
-    <div class="col-lg-12">
+    <div class="col-lg-8">
         <div class="admin-card">
             <h5 style="margin-bottom: 20px; font-weight: bold;">
-                <i class="bi bi-graph-up"></i> Statistik Pendapatan (6 Bulan Terakhir)
+                <i class="bi bi-graph-up"></i> Statistik Pendapatan ({{ date('Y') }})
             </h5>
-            <div style="height: 300px; background: #f5f7fa; border-radius: 5px; display: flex; align-items: center; justify-content: center; color: #999;">
-                Grafik dapat ditambahkan dengan Chart.js atau library serupa
-            </div>
+            <div id="revenueChart" style="height: 350px;"></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="admin-card">
+            <h5 style="margin-bottom: 20px; font-weight: bold;">
+                <i class="bi bi-pie-chart"></i> Distribusi Mobil Terlaris
+            </h5>
+            <div id="popularityChart" style="height: 350px;"></div>
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
+<script>
+    // Revenue Line Chart
+    Highcharts.chart('revenueChart', {
+        chart: {
+            type: 'areaspline',
+            backgroundColor: 'transparent'
+        },
+        title: {
+            text: null
+        },
+        xAxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+            crosshair: true
+        },
+        yAxis: {
+            title: {
+                text: 'Jumlah (Rp)'
+            },
+            labels: {
+                formatter: function () {
+                    return 'Rp ' + Highcharts.numberFormat(this.value, 0, ',', '.');
+                }
+            }
+        },
+        tooltip: {
+            shared: true,
+            valuePrefix: 'Rp '
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: {
+            areaspline: {
+                fillOpacity: 0.1,
+                color: '#667eea',
+                marker: {
+                    radius: 4,
+                    lineColor: '#667eea',
+                    lineWidth: 2
+                }
+            }
+        },
+        series: [{
+            name: 'Pendapatan',
+            data: {!! json_encode($monthlyRevenue) !!}
+        }]
+    });
+
+    // Popularity Pie Chart
+    Highcharts.chart('popularityChart', {
+        chart: {
+            type: 'pie',
+            backgroundColor: 'transparent'
+        },
+        title: {
+            text: null
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.y} kali</b> ({point.percentage:.1f}%)'
+        },
+        accessibility: {
+            point: {
+                valueSuffix: '%'
+            }
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '{point.name}: {point.percentage:.1f}%',
+                    distance: -30,
+                    style: {
+                        color: 'white',
+                        textOutline: 'none'
+                    }
+                },
+                showInLegend: true
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: [{
+            name: 'Disewa',
+            colorByPoint: true,
+            data: {!! json_encode($pieChartData) !!}
+        }]
+    });
+</script>
+@endpush
 
 @endsection

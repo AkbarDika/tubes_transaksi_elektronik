@@ -36,8 +36,8 @@
                     <td>{{ $p->tanggal_selesai }}</td>
                     <td>Rp {{ number_format($p->total_harga) }}</td>
                     <td>
-                        <span class="badge bg-{{ $p->status == 'pending' ? 'warning' : 'success' }}">
-                            {{ ucfirst($p->status) }}
+                        <span class="badge bg-{{ $p->status_badge }}">
+                            {{ $p->status_tampilan }}
                         </span>
                     </td>
                     <td>
@@ -80,7 +80,7 @@
                                 <p><strong>Tanggal Pesan:</strong> {{ $p->tanggal_pesan }}</p>
                                 <p><strong>Tanggal Mulai:</strong> {{ $p->tanggal_mulai }}</p>
                                 <p><strong>Tanggal Selesai:</strong> {{ $p->tanggal_selesai }}</p>
-                                <p><strong>Status:</strong> {{ ucfirst($p->status) }}</p>
+                                <p><strong>Status:</strong> {{ $p->status_tampilan }}</p>
 
                                 <hr>
 
@@ -174,6 +174,9 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+    <div class="pagination-container">
+        {{ $pemesanan->links() }}
     </div>
 </div>
 

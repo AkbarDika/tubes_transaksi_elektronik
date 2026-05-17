@@ -15,6 +15,8 @@ use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TestCallbackController;
 use App\Http\Controllers\RiwayatPesananController;
+use App\Models\Car;
+use App\Http\Controllers\LaporanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,8 +25,19 @@ use App\Http\Controllers\RiwayatPesananController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    if (auth()->check()) {
+        return match (auth()->user()->role_id) {
+            1 => redirect()->route('admin.dashboard'),
+            4 => redirect()->route('petugas.dashboard'),
+            default => redirect()->route('dashboard'),
+        };
+    }
+
+    return view('landing', [
+        'cars' => Car::where('status', 'tersedia')->latest()->take(4)->get()
+    ]);
+})->name('landing');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +109,32 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/test/midtrans-callback', [TestCallbackController::class, 'index'])->name('test.midtrans-callback-form');
     Route::post('/test/midtrans-callback', [TestCallbackController::class, 'simulateCallback'])->name('test.midtrans-callback');
     Route::get('/user/riwayat-pesanan', [RiwayatPesananController::class, 'index'])->name('user.riwayat_pesanan');
+
+
+    Route::post('/user/pengembalian', [PengembalianController::class, 'storeUser'])
+        ->name('pengembalian.storeUser');
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| Protected Routes - Petugas
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'petugas'])->group(function () {
+    
+    // Petugas Dashboard
+    Route::get('/petugas', [App\Http\Controllers\PetugasController::class, 'index'])->name('petugas.dashboard');
+    
+    // Petugas - Kelola Pemesanan
+    Route::get('/petugas/pemesanan', [App\Http\Controllers\PetugasController::class, 'pemesanan'])->name('petugas.pemesanan');
+    Route::put('/petugas/pemesanan/{id}/konfirmasi', [App\Http\Controllers\PetugasController::class, 'konfirmasiPemesanan'])->name('petugas.pemesanan.konfirmasi');
+    
+    // Petugas - Kelola Pengembalian
+    Route::get('/petugas/pengembalian', [App\Http\Controllers\PetugasController::class, 'pengembalian'])->name('petugas.pengembalian');
+    Route::put('/petugas/pengembalian/{id}/konfirmasi', [App\Http\Controllers\PetugasController::class, 'konfirmasiPengembalian'])->name('petugas.pengembalian.konfirmasi');
+
 });
 
 /*
@@ -151,4 +190,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::delete('/user/{id}', [UserController::class, 'destroy'])
         ->name('user.destroy');
+
+    // Laporan
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('admin.laporan.index');
+    Route::get('/laporan/export-pesanan', [LaporanController::class, 'exportPesanan'])->name('admin.laporan.export-pesanan');
+    Route::get('/laporan/export-pembayaran', [LaporanController::class, 'exportPembayaran'])->name('admin.laporan.export-pembayaran');
+    Route::get('/laporan/export-pengembalian', [LaporanController::class, 'exportPengembalian'])->name('admin.laporan.export-pengembalian');
 });

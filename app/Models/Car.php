@@ -13,6 +13,7 @@ class Car extends Model
         'model',
         'tahun',
         'nomor_plat',
+        'jumlah_kursi',
         'harga_sewa',
         'status',
         'foto'

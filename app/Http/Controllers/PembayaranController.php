@@ -12,7 +12,7 @@ class PembayaranController extends Controller
 {
     public function index()
     {
-        $pembayaran = Pembayaran::with('pemesanan')->get();
+        $pembayaran = Pembayaran::with('pemesanan')->paginate(10);
         $pemesanan = Pemesanan::all();
 
         return view('admin.payments.index', compact('pembayaran', 'pemesanan'));
