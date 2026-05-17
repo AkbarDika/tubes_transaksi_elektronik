@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             PembayaranSeeder::class,
             PengembalianSeeder::class,
             DendaSeeder::class,
+            KontrakSeeder::class,
         ]);
     }
 
