@@ -43,6 +43,11 @@ class Pemesanan extends Model
         return $this->hasOne(Pengembalian::class);
     }
 
+    public function kontrak()
+    {
+        return $this->hasOne(Kontrak::class);
+    }
+
 
     public function getStatusTampilanAttribute()
     {

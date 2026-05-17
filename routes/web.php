@@ -17,6 +17,7 @@ use App\Http\Controllers\TestCallbackController;
 use App\Http\Controllers\RiwayatPesananController;
 use App\Models\Car;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\KontrakController;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,6 +111,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/test/midtrans-callback', [TestCallbackController::class, 'simulateCallback'])->name('test.midtrans-callback');
     Route::get('/user/riwayat-pesanan', [RiwayatPesananController::class, 'index'])->name('user.riwayat_pesanan');
 
+    // Kontrak Routes (Customer)
+    Route::get('/my-kontrak', [KontrakController::class, 'myKontrak'])->name('user.kontrak.index');
+    Route::get('/kontrak/{id}/download', [KontrakController::class, 'download'])->name('kontrak.download');
+
 
     Route::post('/user/pengembalian', [PengembalianController::class, 'storeUser'])
         ->name('pengembalian.storeUser');
@@ -196,4 +201,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/laporan/export-pesanan', [LaporanController::class, 'exportPesanan'])->name('admin.laporan.export-pesanan');
     Route::get('/laporan/export-pembayaran', [LaporanController::class, 'exportPembayaran'])->name('admin.laporan.export-pembayaran');
     Route::get('/laporan/export-pengembalian', [LaporanController::class, 'exportPengembalian'])->name('admin.laporan.export-pengembalian');
+
+    // Kontrak Routes (Admin)
+    Route::get('/kontrak', [KontrakController::class, 'index'])->name('admin.kontrak.index');
+    Route::get('/kontrak/{id}', [KontrakController::class, 'show'])->name('admin.kontrak.show');
+    Route::post('/kontrak/generate/{pemesananId}', [KontrakController::class, 'generate'])->name('admin.kontrak.generate');
+    Route::put('/kontrak/{id}', [KontrakController::class, 'update'])->name('admin.kontrak.update');
+    Route::delete('/kontrak/{id}', [KontrakController::class, 'destroy'])->name('admin.kontrak.destroy');
 });

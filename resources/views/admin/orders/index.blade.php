@@ -23,6 +23,7 @@
                     <th>Tgl Selesai</th>
                     <th>Total Harga</th>
                     <th>Status</th>
+                    <th>Kontrak</th>
                     <th width="180">Aksi</th>
                 </tr>
             </thead>
@@ -39,6 +40,28 @@
                         <span class="badge bg-{{ $p->status_badge }}">
                             {{ $p->status_tampilan }}
                         </span>
+                    </td>
+                    <td>
+                        @if(in_array($p->status, ['disetujui','selesai']))
+                            @if($p->kontrak)
+                                <a href="{{ route('admin.kontrak.show', $p->kontrak->id) }}"
+                                   class="btn btn-outline-success btn-sm" title="{{ $p->kontrak->nomor_kontrak }}">
+                                    <i class="bi bi-file-earmark-check"></i>
+                                    <span class="d-none d-lg-inline">{{ $p->kontrak->nomor_kontrak }}</span>
+                                </a>
+                            @else
+                                <form action="{{ route('admin.kontrak.generate', $p->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                        onclick="return confirm('Generate kontrak untuk pemesanan #{{ $p->id }}?')"
+                                        title="Generate Kontrak">
+                                        <i class="bi bi-file-earmark-plus"></i> Generate
+                                    </button>
+                                </form>
+                            @endif
+                        @else
+                            <span class="text-muted small">—</span>
+                        @endif
                     </td>
                     <td>
                         <!-- DETAIL -->

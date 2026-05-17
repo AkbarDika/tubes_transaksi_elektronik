@@ -248,6 +248,10 @@
                         <i class="bi bi-file-earmark-pdf"></i>
                         Laporan
                     </a>
+                    <a class="nav-link {{ request()->routeIs('admin.kontrak.*') ? 'active' : '' }}" href="{{ route('admin.kontrak.index') }}">
+                        <i class="bi bi-file-earmark-text"></i>
+                        Kontrak
+                    </a>
                     <a class="nav-link" href="{{ url('/dashboard') }}">
                         <i class="bi bi-home"></i>
                         Halaman Utama

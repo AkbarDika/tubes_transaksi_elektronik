@@ -239,6 +239,14 @@
                     Daftar Transaksi
                 </a>
 
+                <div class="vr mx-2"></div>
+
+                <!-- Kontrak Saya -->
+                <a class="nav-link {{ request()->routeIs('user.kontrak.index') ? 'active' : '' }}"
+                   href="{{ route('user.kontrak.index') }}" style="color: gray !important;">
+                    <i class="bi bi-file-earmark-text me-1"></i>Kontrak Saya
+                </a>
+
                 <div class="vr mx-3"></div>
                 
                 <!-- USER DROPDOWN -->
