@@ -39,7 +39,7 @@
                         </ul>
 
                         <div class="tab-content">
-                            <div class="tab-pane fade show active" id="tab-midtrans">
+                        <div class="tab-pane fade show active" id="tab-midtrans">
                                 @if($snapToken)
                                     <div class="alert alert-info mb-3">
                                         <small>Transfer bank, e-wallet, QRIS, dan lainnya via Midtrans.</small>
@@ -48,7 +48,10 @@
                                         <i class="bi bi-lock"></i> Bayar via Midtrans
                                     </button>
                                 @else
-                                    <div class="alert alert-warning">Midtrans tidak tersedia. Gunakan pembayaran tunai.</div>
+                                    <div class="alert alert-warning">
+                                        <strong>Midtrans tidak tersedia saat ini.</strong><br>
+                                        <small>Gunakan pembayaran tunai atau coba lagi nanti.</small>
+                                    </div>
                                 @endif
                             </div>
 

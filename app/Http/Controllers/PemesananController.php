@@ -11,8 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use InvalidArgumentException;
-use Midtrans\Snap;
 use Midtrans\Config;
+use Midtrans\Snap;
+use Illuminate\Support\Facades\Log;
+
 
 
 class PemesananController extends Controller
@@ -120,7 +122,10 @@ class PemesananController extends Controller
      */
     public function payment(Pemesanan $pemesanan)
     {
-        if ($pemesanan->user_id !== auth()->id()) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        if ($pemesanan->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak mengakses pembayaran ini.');
         }
 
@@ -142,21 +147,31 @@ class PemesananController extends Controller
                 ->with('error', 'Pemesanan tidak dapat dibayar pada status saat ini.');
         }
 
+        // Konfigurasi Midtrans
         Config::$serverKey = config('midtrans.server_key');
+        Config::$clientKey = config('midtrans.client_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
+        // Validasi konfigurasi
+        if (empty(Config::$serverKey) || empty(Config::$clientKey)) {
+            Log::error('Midtrans configuration missing', [
+                'server_key_empty' => empty(Config::$serverKey),
+                'client_key_empty' => empty(Config::$clientKey),
+            ]);
+        }
+
         $snapToken = null;
         $params = [
             'transaction_details' => [
-                'order_id' => 'ORDER-' . $pemesanan->id,
+                'order_id' => 'ORDER-' . $pemesanan->id . '-' . time(),
                 'gross_amount' => (int) round((float) $pemesanan->total_harga),
             ],
             'customer_details' => [
-                'first_name' => auth()->user()->name,
-                'email' => auth()->user()->email,
-                'phone' => auth()->user()->phone ?? '',
+                'first_name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone ?? '',
             ],
             'item_details' => [
                 [
@@ -168,9 +183,27 @@ class PemesananController extends Controller
             ],
         ];
 
+        Log::debug('Midtrans Snap Token Request', [
+            'params' => $params,
+            'server_key_present' => !empty(Config::$serverKey),
+            'is_production' => Config::$isProduction,
+        ]);
+
         try {
             $snapToken = Snap::getSnapToken($params);
+            Log::info('Midtrans Snap Token Generated Successfully', [
+                'pemesanan_id' => $pemesanan->id,
+                'order_id' => 'ORDER-' . $pemesanan->id,
+                'gross_amount' => $pemesanan->total_harga,
+            ]);
         } catch (\Exception $e) {
+            Log::error('Midtrans Snap Token Generation Failed', [
+                'pemesanan_id' => $pemesanan->id,
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'class' => get_class($e),
+                'trace' => $e->getTraceAsString(),
+            ]);
             // Midtrans opsional; tunai tetap tersedia
         }
 
@@ -182,7 +215,10 @@ class PemesananController extends Controller
      */
     public function payCash(ProcessCashPaymentRequest $request, Pemesanan $pemesanan)
     {
-        if ($pemesanan->user_id !== auth()->id()) {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
+        if ($pemesanan->user_id !== $user->id) {
             abort(403, 'Anda tidak berhak melakukan pembayaran ini.');
         }
 
@@ -205,8 +241,11 @@ class PemesananController extends Controller
      */
     public function paymentSuccess(Pemesanan $pemesanan)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         // Pastikan user yang login adalah pemilik pemesanan
-        if ($pemesanan->user_id != auth()->id()) {
+        if ($pemesanan->user_id != $user->id) {
             abort(403, 'Unauthorized');
         }
 
@@ -218,8 +257,11 @@ class PemesananController extends Controller
      */
     public function paymentFailed(Pemesanan $pemesanan)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+        
         // Pastikan user yang login adalah pemilik pemesanan
-        if ($pemesanan->user_id != auth()->id()) {
+        if ($pemesanan->user_id != $user->id) {
             abort(403, 'Unauthorized');
         }
 

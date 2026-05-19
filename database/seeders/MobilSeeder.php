@@ -149,6 +149,15 @@ class MobilSeeder extends Seeder
                 'harga_sewa' => 1800000,
                 'status' => 'tersedia'
             ],
+            [
+                'kategori_id' => 6,
+                'merk' => 'Porsche',
+                'model' => '911 Carrera',
+                'tahun' => 2024,
+                'nomor_plat' => 'B 5522 MNO',
+                'harga_sewa' => 1800000,
+                'status' => 'tersedia'
+            ],
         ]);
     }
 }

@@ -57,8 +57,12 @@ class MidtransController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Missing required data'], 400);
             }
 
-            // Extract order ID (hapus prefix ORDER-)
+            // Extract order ID (hapus prefix ORDER- dan timestamp)
+            // Format: ORDER-{pemesanan_id}-{timestamp}
             $orderId = str_replace('ORDER-', '', $orderId);
+            // Ambil hanya bagian {pemesanan_id} dengan split '-'
+            $orderParts = explode('-', $orderId);
+            $orderId = $orderParts[0] ?? $orderId;
 
             // Cek apakah pemesanan ada
             $pemesanan = Pemesanan::find($orderId);
