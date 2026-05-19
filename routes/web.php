@@ -18,6 +18,7 @@ use App\Http\Controllers\RiwayatPesananController;
 use App\Models\Car;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\KontrakController;
+use App\Http\Controllers\PosController;
 
 /*
 |--------------------------------------------------------------------------
@@ -101,8 +102,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/rental/{pemesananId}', [RentalController::class, 'update'])->name('rental.update');
     Route::post('/rental/{pemesananId}/cancel', [RentalController::class, 'cancel'])->name('rental.cancel');
 
-    // Payment Routes
+    // Payment Routes (Step 3 — Midtrans / Tunai)
     Route::get('/pemesanan/{pemesanan}/payment', [PemesananController::class, 'payment'])->name('pemesanan.payment');
+    Route::post('/pemesanan/{pemesanan}/payment/cash', [PemesananController::class, 'payCash'])
+        ->middleware('throttle:10,1')
+        ->name('pemesanan.payment.cash');
     Route::get('/pemesanan/{pemesanan}/success', [PemesananController::class, 'paymentSuccess'])->name('pemesanan.success');
     Route::get('/pemesanan/{pemesanan}/failed', [PemesananController::class, 'paymentFailed'])->name('pemesanan.failed');
 
@@ -139,6 +143,13 @@ Route::middleware(['auth', 'petugas'])->group(function () {
     // Petugas - Kelola Pengembalian
     Route::get('/petugas/pengembalian', [App\Http\Controllers\PetugasController::class, 'pengembalian'])->name('petugas.pengembalian');
     Route::put('/petugas/pengembalian/{id}/konfirmasi', [App\Http\Controllers\PetugasController::class, 'konfirmasiPengembalian'])->name('petugas.pengembalian.konfirmasi');
+
+    // POS — pembayaran tunai di kasir (Step 3)
+    Route::get('/petugas/pos', [PosController::class, 'index'])->name('petugas.pos.index');
+    Route::get('/petugas/pos/{pemesanan}', [PosController::class, 'show'])->name('petugas.pos.show');
+    Route::post('/petugas/pos/{pemesanan}/bayar', [PosController::class, 'processCash'])
+        ->middleware('throttle:20,1')
+        ->name('petugas.pos.bayar');
 
 });
 

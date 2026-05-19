@@ -2,18 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProcessCashPaymentRequest;
 use App\Models\Pemesanan;
 use App\Models\Car as Mobil;
 use App\Models\User;
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use InvalidArgumentException;
 use Midtrans\Snap;
 use Midtrans\Config;
 
 
 class PemesananController extends Controller
 {
+    public function __construct(
+        protected PaymentService $paymentService
+    ) {}
     public function index()
     {
         $pemesanan = Pemesanan::with([
@@ -110,32 +116,42 @@ class PemesananController extends Controller
     }
 
     /**
-     * Halaman payment untuk customer setelah pemesanan dibuat
+     * Halaman payment (Step 3): Midtrans atau tunai — hanya setelah disetujui petugas.
      */
     public function payment(Pemesanan $pemesanan)
     {
-        // Pastikan user yang login adalah pemilik pemesanan
-        if ($pemesanan->user_id != auth()->id()) {
-            abort(403, 'Unauthorized');
+        if ($pemesanan->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak berhak mengakses pembayaran ini.');
         }
 
-        // Pastikan belum dibayar
-        if ($pemesanan->status == 'disetujui') {
-            return redirect()->route('rental.show', $pemesanan->id)
-                ->with('info', 'Pesanan ini sudah dibayar');
+        if ($pemesanan->status === 'pending') {
+            return redirect()
+                ->route('user.riwayat_pesanan')
+                ->with('warning', 'Pembayaran dapat dilakukan setelah pemesanan disetujui petugas.');
         }
 
-        // Setup Midtrans Config
+        if ($pemesanan->hasValidPayment()) {
+            return redirect()
+                ->route('user.riwayat_pesanan')
+                ->with('info', 'Pesanan ini sudah dibayar.');
+        }
+
+        if (!$pemesanan->canAcceptPayment()) {
+            return redirect()
+                ->route('user.riwayat_pesanan')
+                ->with('error', 'Pemesanan tidak dapat dibayar pada status saat ini.');
+        }
+
         Config::$serverKey = config('midtrans.server_key');
         Config::$isProduction = config('midtrans.is_production');
         Config::$isSanitized = config('midtrans.is_sanitized');
         Config::$is3ds = config('midtrans.is_3ds');
 
-        // Generate Snap Token
+        $snapToken = null;
         $params = [
             'transaction_details' => [
                 'order_id' => 'ORDER-' . $pemesanan->id,
-                'gross_amount' => $pemesanan->total_harga,
+                'gross_amount' => (int) round((float) $pemesanan->total_harga),
             ],
             'customer_details' => [
                 'first_name' => auth()->user()->name,
@@ -145,18 +161,42 @@ class PemesananController extends Controller
             'item_details' => [
                 [
                     'id' => $pemesanan->id,
-                    'price' => $pemesanan->total_harga,
+                    'price' => (int) round((float) $pemesanan->total_harga),
                     'quantity' => 1,
                     'name' => 'Rental Mobil - Order #' . $pemesanan->id,
-                ]
+                ],
             ],
         ];
 
         try {
             $snapToken = Snap::getSnapToken($params);
-            return view('user.payment', compact('snapToken', 'pemesanan'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal membuat payment token: ' . $e->getMessage());
+            // Midtrans opsional; tunai tetap tersedia
+        }
+
+        return view('user.payment', compact('snapToken', 'pemesanan'));
+    }
+
+    /**
+     * Pembayaran tunai oleh customer (validasi server-side).
+     */
+    public function payCash(ProcessCashPaymentRequest $request, Pemesanan $pemesanan)
+    {
+        if ($pemesanan->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak berhak melakukan pembayaran ini.');
+        }
+
+        try {
+            $pembayaran = $this->paymentService->processCashPayment(
+                $pemesanan,
+                (float) $request->uang_diterima
+            );
+
+            return redirect()
+                ->route('pemesanan.success', $pemesanan)
+                ->with('success', 'Pembayaran tunai berhasil. Kembalian: Rp ' . number_format($pembayaran->kembalian, 0, ',', '.'));
+        } catch (InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage())->withInput();
         }
     }
 

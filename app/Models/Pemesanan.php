@@ -48,6 +48,24 @@ class Pemesanan extends Model
         return $this->hasOne(Kontrak::class);
     }
 
+    /** Pembayaran valid sudah tercatat */
+    public function hasValidPayment(): bool
+    {
+        return $this->pembayaran && $this->pembayaran->status === 'valid';
+    }
+
+    /** Siap dibayar: disetujui petugas & belum lunas */
+    public function canAcceptPayment(): bool
+    {
+        return $this->status === 'disetujui' && !$this->hasValidPayment();
+    }
+
+    public function scopeReadyForPayment($query)
+    {
+        return $query
+            ->where('status', 'disetujui')
+            ->whereDoesntHave('pembayaran', fn ($q) => $q->where('status', 'valid'));
+    }
 
     public function getStatusTampilanAttribute()
     {

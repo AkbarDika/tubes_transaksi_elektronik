@@ -186,6 +186,11 @@
                         <i class="bi bi-calendar-check"></i>
                         Pemesanan
                     </a>
+
+                    <a class="nav-link {{ request()->is('petugas/pos*') ? 'active' : '' }}" href="{{ route('petugas.pos.index') }}">
+                        <i class="bi bi-cash-register"></i>
+                        POS (Tunai)
+                    </a>
                     
                     <a class="nav-link {{ request()->is('petugas/pengembalian') ? 'active' : '' }}" href="{{ url('/petugas/pengembalian') }}">
                         <i class="bi bi-arrow-return-left"></i>
