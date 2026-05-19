@@ -334,6 +334,10 @@
                 <tr><td>Metode</td><td>{{ $kontrak->pemesanan->pembayaran->metode_pembayaran }}</td></tr>
                 <tr><td>Tanggal Bayar</td><td>{{ \Carbon\Carbon::parse($kontrak->pemesanan->pembayaran->tanggal_bayar)->format('d/m/Y') }}</td></tr>
                 <tr><td>Jumlah Bayar</td><td>Rp {{ number_format($kontrak->pemesanan->pembayaran->jumlah_bayar, 0, ',', '.') }}</td></tr>
+                @if($kontrak->pemesanan->pembayaran->metode_pembayaran === 'Tunai' && $kontrak->pemesanan->pembayaran->uang_diterima)
+                <tr><td>Uang Diterima</td><td>Rp {{ number_format($kontrak->pemesanan->pembayaran->uang_diterima, 0, ',', '.') }}</td></tr>
+                <tr><td>Kembalian</td><td>Rp {{ number_format($kontrak->pemesanan->pembayaran->kembalian, 0, ',', '.') }}</td></tr>
+                @endif
                 <tr><td>Status</td><td>{{ strtoupper($kontrak->pemesanan->pembayaran->status) }}</td></tr>
                 @else
                 <tr><td colspan="2" style="color:#ef4444">Belum Ada Pembayaran</td></tr>

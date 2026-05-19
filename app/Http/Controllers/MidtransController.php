@@ -67,13 +67,22 @@ class MidtransController extends Controller
                 return response()->json(['status' => 'error', 'message' => 'Order not found'], 404);
             }
 
-            // Cek apakah pembayaran sudah ada
             $existingPayment = Pembayaran::where('pemesanan_id', $orderId)->first();
 
-            // Jika pembayaran sudah sukses sebelumnya, jangan update lagi (idempotency)
-            if ($existingPayment && $existingPayment->status == 'valid') {
+            if ($existingPayment && $existingPayment->status === 'valid') {
                 Log::info('Payment already verified for order: ' . $orderId);
                 return response('ok', 200)->header('Content-Type', 'text/plain');
+            }
+
+            $expectedAmount = round((float) $pemesanan->total_harga, 2);
+            $receivedAmount = round((float) $grossAmount, 2);
+            if (abs($expectedAmount - $receivedAmount) > 0.01) {
+                Log::error('Amount mismatch', [
+                    'order_id' => $orderId,
+                    'expected' => $expectedAmount,
+                    'received' => $receivedAmount,
+                ]);
+                return response()->json(['status' => 'error', 'message' => 'Amount mismatch'], 400);
             }
 
             // Terjemahkan payment type
@@ -106,13 +115,10 @@ class MidtransController extends Controller
 
             // Handle berbagai status transaksi
             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
-                // Pembayaran berhasil
                 $paymentData['status'] = 'valid';
-                
-                // Update status pemesanan
-                $pemesanan->update(['status' => 'pending']);
-                
-                Log::info('✅ Payment SUCCESSFUL for order: ' . $orderId);
+                $paymentData['jumlah_bayar'] = $expectedAmount;
+
+                Log::info('Payment SUCCESSFUL for order: ' . $orderId);
             } elseif ($transactionStatus == 'pending') {
                 // Pembayaran masih pending
                 $paymentData['status'] = 'menunggu';

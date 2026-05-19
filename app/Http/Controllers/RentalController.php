@@ -81,7 +81,8 @@ class RentalController extends Controller
             return $pemesanan;
         });
 
-        // Redirect ke halaman payment dengan snap token
-        return redirect()->route('pemesanan.payment', $pemesanan->id);
+        return redirect()
+            ->route('user.riwayat_pesanan')
+            ->with('success', 'Pemesanan berhasil dibuat. Tunggu persetujuan petugas, lalu lakukan pembayaran.');
     }
 }

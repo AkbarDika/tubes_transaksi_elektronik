@@ -47,6 +47,12 @@
                             Detail
                         </button>
 
+                        @if($p->canAcceptPayment())
+                            <a href="{{ route('petugas.pos.show', $p) }}" class="btn btn-warning btn-sm text-dark">
+                                <i class="bi bi-cash"></i> POS
+                            </a>
+                        @endif
+
                         <!-- KONFIRMASI -->
                         <button class="btn btn-success btn-sm" data-bs-toggle="modal"
                             data-bs-target="#konfirmasi{{ $p->id }}">

@@ -114,6 +114,13 @@
                                         Detail
                                     </button>
 
+                                    @if ($p->canAcceptPayment())
+                                        <a href="{{ route('pemesanan.payment', $p) }}"
+                                           class="btn btn-success btn-sm rounded-pill px-3 me-1">
+                                            Bayar
+                                        </a>
+                                    @endif
+
                                     @if (
                                         $p->status_tampilan === 'Sedang Disewa' &&
                                         !$p->pengembalian

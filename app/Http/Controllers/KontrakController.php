@@ -59,9 +59,12 @@ class KontrakController extends Controller
                 ->with('info', 'Kontrak untuk pemesanan ini sudah ada: ' . $existing->nomor_kontrak);
         }
 
-        // Hanya generate kontrak jika pemesanan sudah disetujui
         if (!in_array($pemesanan->status, ['disetujui', 'selesai'])) {
             return back()->with('error', 'Kontrak hanya bisa dibuat untuk pemesanan dengan status "Disetujui" atau "Selesai".');
+        }
+
+        if (!$pemesanan->hasValidPayment()) {
+            return back()->with('error', 'Kontrak hanya dapat dibuat setelah pembayaran valid (Midtrans atau tunai).');
         }
 
         $kontrak = Kontrak::create([
