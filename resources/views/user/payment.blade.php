@@ -56,7 +56,57 @@
                             </div>
 
                             <div class="tab-pane fade" id="tab-tunai">
-                                @include('partials.cash-payment-form', ['pemesanan' => $pemesanan])
+                                <div class="text-center p-4 border rounded bg-light">
+                                    <div class="mb-3">
+                                        <i class="fa-solid fa-cash-register fs-1 text-primary"></i>
+                                    </div>
+                                    <h5 class="fw-bold text-dark">Simulasi Pembayaran Tunai (POS)</h5>
+                                    
+                                    @if($pemesanan->pembayaran && $pemesanan->pembayaran->status === 'menunggu')
+                                        <div class="alert alert-warning border-warning my-3">
+                                            <i class="fa-solid fa-spinner fa-spin me-2"></i>
+                                            <strong>Status: Sedang dalam Proses Pengecekan Kasir</strong>
+                                            <p class="small text-muted mb-0 mt-1">
+                                                Silakan datangi petugas kasir kami untuk memproses verifikasi fisik uang. Petugas akan mengunggah gambar uang dan menekan konfirmasi pembayaran pada menu POS.
+                                            </p>
+                                        </div>
+                                    @elseif($pemesanan->pembayaran && $pemesanan->pembayaran->status === 'valid')
+                                        <div class="alert alert-success border-success my-3">
+                                            <i class="fa-solid fa-circle-check me-2"></i>
+                                            <strong>Status: Pembayaran Tunai Lunas & Valid</strong>
+                                            @if($pemesanan->pembayaran->kembalian > 0)
+                                                <p class="small mb-0 mt-1">Kembalian: Rp {{ number_format($pemesanan->pembayaran->kembalian, 0, ',', '.') }}</p>
+                                            @endif
+                                        </div>
+                                    @elseif($pemesanan->pembayaran && $pemesanan->pembayaran->status === 'ditolak')
+                                        <div class="alert alert-danger border-danger my-3">
+                                            <i class="fa-solid fa-circle-xmark me-2"></i>
+                                            <strong>Status: Pembayaran Tunai Ditolak</strong>
+                                            <p class="small text-muted mb-0 mt-1">Silakan ajukan pengecekan ulang atau hubungi kasir.</p>
+                                        </div>
+                                        <form action="{{ route('pemesanan.payment.cash', $pemesanan) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-warning btn-md fw-bold w-100">
+                                                <i class="fa-solid fa-redo me-1"></i> Ajukan Ulang Pengecekan Tunai
+                                            </button>
+                                        </form>
+                                    @else
+                                        <p class="text-muted small mb-3">
+                                            Gunakan simulasi ini untuk mengajukan verifikasi pembayaran tunai kepada kasir.
+                                        </p>
+                                        <form action="{{ route('pemesanan.payment.cash', $pemesanan) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-primary btn-lg fw-bold w-100 mb-3">
+                                                <i class="fa-solid fa-circle-play me-1"></i> Mulai Proses Pengecekan
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    <div class="bg-white p-3 rounded shadow-sm d-inline-block border w-100 mt-2">
+                                        <span class="text-muted d-block small">Nomor Pemesanan Anda:</span>
+                                        <span class="fs-4 fw-bold text-dark">#{{ $pemesanan->id }}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

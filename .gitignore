@@ -24,3 +24,12 @@ Homestead.yaml
 Thumbs.db
 *.md
 !README.md
+
+# Temporary test files
+debug_callback.php
+test_callback.php
+test_endpoint.php
+test_midtrans.php
+
+# Accidental folders
+/path/

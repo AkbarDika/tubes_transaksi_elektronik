@@ -54,10 +54,21 @@ class Pemesanan extends Model
         return $this->pembayaran && $this->pembayaran->status === 'valid';
     }
 
-    /** Siap dibayar: disetujui petugas & belum lunas */
+    /** Siap dibayar: status pending & belum lunas & belum ada pembayaran Midtrans sedang proses */
     public function canAcceptPayment(): bool
     {
-        return $this->status === 'disetujui' && !$this->hasValidPayment();
+        // Jika sudah valid, tidak perlu bayar lagi
+        if ($this->hasValidPayment()) {
+            return false;
+        }
+
+        // Jika sudah ada record pembayaran via Midtrans (non-Tunai) meski masih menunggu,
+        // tombol Bayar tidak perlu ditampilkan lagi
+        if ($this->pembayaran && $this->pembayaran->metode_pembayaran !== 'Tunai') {
+            return false;
+        }
+
+        return in_array($this->status, ['pending', 'disetujui']);
     }
 
     public function scopeReadyForPayment($query)

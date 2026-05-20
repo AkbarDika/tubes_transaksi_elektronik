@@ -31,6 +31,7 @@
                     <th>Pelanggan</th>
                     <th>Total</th>
                     <th>Tgl Mulai</th>
+                    <th>Status Pengecekan</th>
                     <th width="120">Aksi</th>
                 </tr>
             </thead>
@@ -42,8 +43,17 @@
                     <td>Rp {{ number_format($p->total_harga, 0, ',', '.') }}</td>
                     <td>{{ $p->tanggal_mulai->format('d M Y') }}</td>
                     <td>
+                        @if($p->pembayaran && $p->pembayaran->status === 'menunggu')
+                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Menunggu Pengecekan</span>
+                        @elseif($p->pembayaran && $p->pembayaran->status === 'ditolak')
+                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Pembayaran Ditolak</span>
+                        @else
+                            <span class="badge bg-secondary"><i class="bi bi-cash-stack"></i> Belum Diajukan</span>
+                        @endif
+                    </td>
+                    <td>
                         <a href="{{ route('petugas.pos.show', $p) }}" class="btn btn-warning btn-sm text-dark fw-bold">
-                            <i class="bi bi-cash"></i> Bayar
+                            <i class="bi bi-cash"></i> Bayar/Cek
                         </a>
                     </td>
                 </tr>

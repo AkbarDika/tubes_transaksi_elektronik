@@ -47,7 +47,7 @@
                             Detail
                         </button>
 
-                        @if($p->canAcceptPayment())
+                        @if($p->canAcceptPayment() && $p->pembayaran && $p->pembayaran->metode_pembayaran === 'Tunai')
                             <a href="{{ route('petugas.pos.show', $p) }}" class="btn btn-warning btn-sm text-dark">
                                 <i class="bi bi-cash"></i> POS
                             </a>

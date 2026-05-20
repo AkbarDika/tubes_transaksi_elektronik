@@ -4,7 +4,7 @@
     $submitLabel = $submitLabel ?? 'Konfirmasi Bayar Tunai';
 @endphp
 
-<form action="{{ $formAction }}" method="POST" class="cash-payment-form">
+<form action="{{ $formAction }}" method="POST" enctype="multipart/form-data" class="cash-payment-form" id="cashPaymentForm">
     @csrf
 
     <div class="mb-3">
@@ -36,6 +36,20 @@
         <small class="text-muted">Uang diterima harus &ge; total tagihan.</small>
     </div>
 
+    <div class="mb-3">
+        <label for="bukti_bayar" class="form-label fw-semibold">Unggah Foto Uang / Bukti Fisik <span class="text-danger">*</span></label>
+        <input type="file"
+               name="bukti_bayar"
+               id="bukti_bayar"
+               class="form-control @error('bukti_bayar') is-invalid @enderror"
+               accept="image/*"
+               required>
+        @error('bukti_bayar')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @enderror
+        <small class="text-muted">Upload foto uang kertas/koin untuk arsip verifikasi fisik.</small>
+    </div>
+
     <div class="alert alert-secondary mb-3" id="kembalianBox">
         <div class="d-flex justify-content-between align-items-center">
             <span>Kembalian</span>
@@ -43,12 +57,24 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold" id="btnBayarTunai" disabled>
-        <i class="bi bi-cash-coin"></i> {{ $submitLabel }}
+    <button type="submit" name="action" value="setujui" class="btn btn-success btn-lg w-100 fw-bold" id="btnBayarTunai" disabled>
+        <i class="bi bi-check-circle-fill me-1"></i> {{ $submitLabel }}
+    </button>
+    
+    <button type="submit" name="action" value="tolak" class="btn btn-danger btn-md w-100 fw-bold mt-2" onclick="disableRequiredFields();">
+        <i class="bi bi-x-circle-fill me-1"></i> Tolak Pembayaran
     </button>
 </form>
 
 <script>
+function disableRequiredFields() {
+    document.getElementById('uang_diterima').removeAttribute('required');
+    document.getElementById('bukti_bayar').removeAttribute('required');
+    if(confirm('Apakah Anda yakin ingin menolak transaksi tunai ini?')) {
+        document.getElementById('cashPaymentForm').submit();
+    }
+}
+
 (function () {
     const total = {{ $totalTagihan }};
     const input = document.getElementById('uang_diterima');

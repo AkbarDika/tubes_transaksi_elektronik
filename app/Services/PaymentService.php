@@ -16,14 +16,33 @@ class PaymentService
     public function processCashPayment(
         Pemesanan $pemesanan,
         float $uangDiterima,
-        ?int $petugasId = null
+        ?int $petugasId = null,
+        string $status = 'valid',
+        ?string $buktiBayar = null
     ): Pembayaran {
-        return DB::transaction(function () use ($pemesanan, $uangDiterima, $petugasId) {
+        return DB::transaction(function () use ($pemesanan, $uangDiterima, $petugasId, $status, $buktiBayar) {
             $pemesanan = Pemesanan::whereKey($pemesanan->id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if (!$pemesanan->canAcceptPayment()) {
+            if ($status === 'ditolak') {
+                $pembayaran = Pembayaran::updateOrCreate(
+                    ['pemesanan_id' => $pemesanan->id],
+                    [
+                        'metode_pembayaran' => 'Tunai',
+                        'tanggal_bayar'     => now()->toDateString(),
+                        'jumlah_bayar'      => 0,
+                        'uang_diterima'     => 0,
+                        'kembalian'         => 0,
+                        'bukti_bayar'       => $buktiBayar,
+                        'petugas_id'        => $petugasId,
+                        'status'            => 'ditolak',
+                    ]
+                );
+                return $pembayaran;
+            }
+
+            if (!$pemesanan->canAcceptPayment() && ($pemesanan->pembayaran && $pemesanan->pembayaran->status !== 'menunggu')) {
                 throw new InvalidArgumentException(
                     'Pemesanan tidak dapat dibayar. Pastikan sudah disetujui petugas dan belum lunas.'
                 );
@@ -49,6 +68,7 @@ class PaymentService
                     'jumlah_bayar'      => $total,
                     'uang_diterima'     => $uangDiterima,
                     'kembalian'         => $kembalian,
+                    'bukti_bayar'       => $buktiBayar ?: ($pemesanan->pembayaran ? $pemesanan->pembayaran->bukti_bayar : null),
                     'petugas_id'        => $petugasId,
                     'status'            => 'valid',
                 ]

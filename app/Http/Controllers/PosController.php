@@ -21,6 +21,7 @@ class PosController extends Controller
     {
         $query = Pemesanan::with(['user', 'details.mobil', 'pembayaran'])
             ->readyForPayment()
+            ->whereHas('pembayaran', fn ($q) => $q->where('metode_pembayaran', 'Tunai'))
             ->orderByDesc('updated_at');
 
         if ($request->filled('search')) {
@@ -53,21 +54,72 @@ class PosController extends Controller
     }
 
     /**
-     * Proses pembayaran tunai oleh petugas (secure: total dari DB).
+     * Proses pembayaran tunai oleh petugas (memproses pengecekan dan upload gambar).
      */
-    public function processCash(ProcessCashPaymentRequest $request, Pemesanan $pemesanan)
+    public function processCash(Request $request, Pemesanan $pemesanan)
     {
+        $action = $request->input('action', 'setujui');
+
+        if ($action === 'tolak') {
+            $buktiPath = null;
+            if ($request->hasFile('bukti_bayar')) {
+                $request->validate([
+                    'bukti_bayar' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                ]);
+                $file = $request->file('bukti_bayar');
+                $filename = 'cash_reject_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $buktiPath = $file->storeAs('pembayaran', $filename, 'public');
+            }
+
+            $pembayaran = $this->paymentService->processCashPayment(
+                $pemesanan,
+                0.0,
+                auth()->id(),
+                'ditolak',
+                $buktiPath
+            );
+
+            return redirect()
+                ->route('petugas.pos.index')
+                ->with('warning', sprintf('Pemesanan #%d berhasil ditolak untuk pembayaran tunai.', $pemesanan->id));
+        }
+
+        // Aksi Setujui: Validasi standard & upload gambar
+        $request->validate([
+            'uang_diterima' => 'required|numeric|min:0',
+            'bukti_bayar'   => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $total = round((float) $pemesanan->total_harga, 2);
+        $uang = round((float) $request->uang_diterima, 2);
+
+        if ($uang < $total) {
+            $kurang = $total - $uang;
+            return back()
+                ->withErrors(['uang_diterima' => 'Uang tunai tidak mencukupi. Kurang Rp ' . number_format($kurang, 0, ',', '.')])
+                ->withInput();
+        }
+
+        $buktiPath = null;
+        if ($request->hasFile('bukti_bayar')) {
+            $file = $request->file('bukti_bayar');
+            $filename = 'cash_success_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $buktiPath = $file->storeAs('pembayaran', $filename, 'public');
+        }
+
         try {
             $pembayaran = $this->paymentService->processCashPayment(
                 $pemesanan,
-                (float) $request->uang_diterima,
-                auth()->id()
+                $uang,
+                auth()->id(),
+                'valid',
+                $buktiPath
             );
 
             return redirect()
                 ->route('petugas.pos.index')
                 ->with('success', sprintf(
-                    'Pembayaran tunai pemesanan #%d berhasil. Kembalian: Rp %s',
+                    'Pembayaran tunai pemesanan #%d berhasil disetujui. Kembalian: Rp %s',
                     $pemesanan->id,
                     number_format($pembayaran->kembalian, 0, ',', '.')
                 ));

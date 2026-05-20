@@ -117,10 +117,17 @@ class MidtransController extends Controller
                 'jumlah_bayar' => $grossAmount,
             ];
 
-            // Handle berbagai status transaksi
             if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
                 $paymentData['status'] = 'valid';
                 $paymentData['jumlah_bayar'] = $expectedAmount;
+
+                // Update status pemesanan ke disetujui & mobil ke disewa
+                $pemesanan->update(['status' => 'disetujui']);
+                foreach ($pemesanan->details as $detail) {
+                    if ($detail->mobil) {
+                        $detail->mobil->update(['status' => 'disewa']);
+                    }
+                }
 
                 Log::info('Payment SUCCESSFUL for order: ' . $orderId);
             } elseif ($transactionStatus == 'pending') {
